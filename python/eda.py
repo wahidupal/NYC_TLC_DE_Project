@@ -4,28 +4,59 @@ con = duckdb.connect()
 
 query = """
 SELECT
-    COUNT(*) AS total_rows,
-    COUNT(*) - COUNT(VendorID) AS VendorID_nulls,
-    COUNT(*) - COUNT(tpep_pickup_datetime) AS pickup_datetime_nulls,
-    COUNT(*) - COUNT(tpep_dropoff_datetime) AS dropoff_datetime_nulls,
-    COUNT(*) - COUNT(passenger_count) AS passenger_count_nulls,
-    COUNT(*) - COUNT(trip_distance) AS trip_distance_nulls,
-    COUNT(*) - COUNT(RatecodeID) AS RatecodeID_nulls,
-    COUNT(*) - COUNT(store_and_fwd_flag) AS store_and_fwd_flag_nulls,
-    COUNT(*) - COUNT(PULocationID) AS PULocationID_nulls,
-    COUNT(*) - COUNT(DOLocationID) AS DOLocationID_nulls,
-    COUNT(*) - COUNT(payment_type) AS payment_type_nulls,
-    COUNT(*) - COUNT(fare_amount) AS fare_amount_nulls,
-    COUNT(*) - COUNT(extra) AS extra_nulls,
-    COUNT(*) - COUNT(mta_tax) AS mta_tax_nulls,
-    COUNT(*) - COUNT(tip_amount) AS tip_amount_nulls,
-    COUNT(*) - COUNT(tolls_amount) AS tolls_amount_nulls,
-    COUNT(*) - COUNT(improvement_surcharge) AS improvement_surcharge_nulls,
-    COUNT(*) - COUNT(total_amount) AS total_amount_nulls,
-    COUNT(*) - COUNT(congestion_surcharge) AS congestion_surcharge_nulls,
-    COUNT(*) - COUNT(Airport_fee) AS Airport_fee_nulls,
-    COUNT(*) - COUNT(cbd_congestion_fee) AS cbd_congestion_fee_nulls
-FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet');
+    column_name,
+    null_count,
+    ROUND(100.0 * null_count / total_rows, 2) AS null_percentage
+FROM (
+    SELECT
+        COUNT(*) AS total_rows,
+        COUNT(*) - COUNT(VendorID) AS VendorID,
+        COUNT(*) - COUNT(tpep_pickup_datetime) AS pickup_datetime,
+        COUNT(*) - COUNT(tpep_dropoff_datetime) AS dropoff_datetime,
+        COUNT(*) - COUNT(passenger_count) AS passenger_count,
+        COUNT(*) - COUNT(trip_distance) AS trip_distance,
+        COUNT(*) - COUNT(RatecodeID) AS RatecodeID,
+        COUNT(*) - COUNT(store_and_fwd_flag) AS store_and_fwd_flag,
+        COUNT(*) - COUNT(PULocationID) AS PULocationID,
+        COUNT(*) - COUNT(DOLocationID) AS DOLocationID,
+        COUNT(*) - COUNT(payment_type) AS payment_type,
+        COUNT(*) - COUNT(fare_amount) AS fare_amount,
+        COUNT(*) - COUNT(extra) AS extra,
+        COUNT(*) - COUNT(mta_tax) AS mta_tax,
+        COUNT(*) - COUNT(tip_amount) AS tip_amount,
+        COUNT(*) - COUNT(tolls_amount) AS tolls_amount,
+        COUNT(*) - COUNT(improvement_surcharge) AS improvement_surcharge,
+        COUNT(*) - COUNT(total_amount) AS total_amount,
+        COUNT(*) - COUNT(congestion_surcharge) AS congestion_surcharge,
+        COUNT(*) - COUNT(Airport_fee) AS Airport_fee,
+        COUNT(*) - COUNT(cbd_congestion_fee) AS cbd_congestion_fee
+    FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
+)
+UNPIVOT (
+    null_count FOR column_name IN (
+        VendorID,
+        pickup_datetime,
+        dropoff_datetime,
+        passenger_count,
+        trip_distance,
+        RatecodeID,
+        store_and_fwd_flag,
+        PULocationID,
+        DOLocationID,
+        payment_type,
+        fare_amount,
+        extra,
+        mta_tax,
+        tip_amount,
+        tolls_amount,
+        improvement_surcharge,
+        total_amount,
+        congestion_surcharge,
+        Airport_fee,
+        cbd_congestion_fee
+    )
+)
+ORDER BY null_count DESC;
 """
 
 result = con.execute(query).fetchdf()
