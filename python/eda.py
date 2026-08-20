@@ -9,43 +9,61 @@ SELECT
 
     ROUND(
         AVG(
-            EXTRACT(EPOCH FROM (
-                tpep_dropoff_datetime - tpep_pickup_datetime
-            )) / 60
+            trip_distance /
+            NULLIF(
+                EXTRACT(EPOCH FROM (
+                    tpep_dropoff_datetime - tpep_pickup_datetime
+                )) / 3600,
+                0
+            )
         ),
         2
-    ) AS avg_duration_minutes,
+    ) AS avg_mph,
 
     ROUND(
         QUANTILE_CONT(
-            EXTRACT(EPOCH FROM (
-                tpep_dropoff_datetime - tpep_pickup_datetime
-            )) / 60,
+            trip_distance /
+            NULLIF(
+                EXTRACT(EPOCH FROM (
+                    tpep_dropoff_datetime - tpep_pickup_datetime
+                )) / 3600,
+                0
+            ),
             0.50
         ),
         2
-    ) AS median_duration_minutes,
+    ) AS median_mph,
 
     ROUND(
         QUANTILE_CONT(
-            EXTRACT(EPOCH FROM (
-                tpep_dropoff_datetime - tpep_pickup_datetime
-            )) / 60,
+            trip_distance /
+            NULLIF(
+                EXTRACT(EPOCH FROM (
+                    tpep_dropoff_datetime - tpep_pickup_datetime
+                )) / 3600,
+                0
+            ),
             0.99
         ),
         2
-    ) AS p99_duration_minutes,
+    ) AS p99_mph,
 
     ROUND(
         MAX(
-            EXTRACT(EPOCH FROM (
-                tpep_dropoff_datetime - tpep_pickup_datetime
-            )) / 60
+            trip_distance /
+            NULLIF(
+                EXTRACT(EPOCH FROM (
+                    tpep_dropoff_datetime - tpep_pickup_datetime
+                )) / 3600,
+                0
+            )
         ),
         2
-    ) AS max_duration_minutes
+    ) AS max_mph
 
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
+
+WHERE tpep_dropoff_datetime > tpep_pickup_datetime
 
 GROUP BY VendorID, payment_type
 
