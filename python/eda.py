@@ -3,11 +3,19 @@ import duckdb
 con = duckdb.connect()
 query = """
 SELECT
+    VendorID,
     payment_type,
-    COUNT(*) AS trips
+    COUNT(*) AS zero_distance_trips,
+    COUNT(*) FILTER (
+        WHERE PULocationID = DOLocationID
+    ) AS same_location,
+    COUNT(*) FILTER (
+        WHERE PULocationID <> DOLocationID
+    ) AS different_location
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
-GROUP BY payment_type
-ORDER BY payment_type;
+WHERE trip_distance = 0
+GROUP BY VendorID, payment_type
+ORDER BY zero_distance_trips DESC;
 """
 
 result = con.execute(query).fetchdf()
