@@ -5,33 +5,11 @@ query = """
 SELECT
     VendorID,
     payment_type,
-    trip_distance,
-    fare_amount,
-    total_amount,
-    tpep_pickup_datetime,
-    tpep_dropoff_datetime
+    COUNT(*) AS trips
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
-WHERE trip_distance > 1000
-ORDER BY trip_distance DESC
-LIMIT 20;
-"""
-
-result = con.execute(query).fetchdf()
-
-print(result.to_string(index=False))
-
-con.close()
-
-con = duckdb.connect()
-query = """
-SELECT
-    payment_type,
-    COUNT(*) AS negative_trips,
-    ROUND(SUM(total_amount), 2) AS negative_total
-FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
-WHERE total_amount < 0
-GROUP BY payment_type
-ORDER BY negative_trips DESC;
+WHERE payment_type = 0
+GROUP BY VendorID, payment_type
+ORDER BY trips DESC;
 """
 
 result = con.execute(query).fetchdf()
@@ -45,12 +23,22 @@ query = """
 SELECT
     payment_type,
     COUNT(*) AS zero_distance_trips,
-    ROUND(AVG(total_amount), 2) AS avg_total,
-    ROUND(AVG(fare_amount), 2) AS avg_fare
+
+    ROUND(
+        AVG(
+            EXTRACT(EPOCH FROM (
+                tpep_dropoff_datetime - tpep_pickup_datetime
+            )) / 60
+        ),
+        2
+    ) AS avg_duration_minutes
+
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
+
 WHERE trip_distance = 0
+
 GROUP BY payment_type
-ORDER BY zero_distance_trips DESC;
+ORDER BY payment_type;
 """
 
 result = con.execute(query).fetchdf()
@@ -58,3 +46,4 @@ result = con.execute(query).fetchdf()
 print(result.to_string(index=False))
 
 con.close()
+
