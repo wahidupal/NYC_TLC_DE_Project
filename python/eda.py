@@ -29,24 +29,37 @@ query = """
 SELECT
     VendorID,
     payment_type,
-    COUNT(*) AS zero_distance_trips,
+    COUNT(*) AS trips,
+
+    ROUND(MIN(trip_distance), 2) AS min_distance,
+
     ROUND(
-        AVG(
-            EXTRACT(EPOCH FROM (
-                tpep_dropoff_datetime - tpep_pickup_datetime
-            )) / 60
-        ),
+        QUANTILE_CONT(trip_distance, 0.25),
         2
-    ) AS avg_duration_minutes,
-    ROUND(AVG(total_amount), 2) AS avg_total_amount
+    ) AS p25_distance,
+
+    ROUND(
+        QUANTILE_CONT(trip_distance, 0.50),
+        2
+    ) AS median_distance,
+
+    ROUND(
+        QUANTILE_CONT(trip_distance, 0.75),
+        2
+    ) AS p75_distance,
+
+    ROUND(
+        QUANTILE_CONT(trip_distance, 0.99),
+        2
+    ) AS p99_distance,
+
+    ROUND(MAX(trip_distance), 2) AS max_distance
 
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
 
-WHERE trip_distance = 0
-
 GROUP BY VendorID, payment_type
 
-ORDER BY zero_distance_trips DESC;
+ORDER BY VendorID, payment_type;
 """
 
 result = con.execute(query).fetchdf()
