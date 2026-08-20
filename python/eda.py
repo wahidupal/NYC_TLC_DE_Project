@@ -3,71 +3,26 @@ import duckdb
 con = duckdb.connect()
 query = """
 SELECT
-    VendorID,
-    payment_type,
-    COUNT(*) AS trips,
+    COUNT(*) AS total_trips,
+
+    COUNT(*) FILTER (
+        WHERE trip_distance <= 100
+    ) AS normal_distance_trips,
+
+    COUNT(*) FILTER (
+        WHERE trip_distance > 100
+    ) AS extreme_distance_trips,
 
     ROUND(
-        AVG(
-            trip_distance /
-            NULLIF(
-                EXTRACT(EPOCH FROM (
-                    tpep_dropoff_datetime - tpep_pickup_datetime
-                )) / 3600,
-                0
-            )
-        ),
-        2
-    ) AS avg_mph,
-
-    ROUND(
-        QUANTILE_CONT(
-            trip_distance /
-            NULLIF(
-                EXTRACT(EPOCH FROM (
-                    tpep_dropoff_datetime - tpep_pickup_datetime
-                )) / 3600,
-                0
-            ),
-            0.50
-        ),
-        2
-    ) AS median_mph,
-
-    ROUND(
-        QUANTILE_CONT(
-            trip_distance /
-            NULLIF(
-                EXTRACT(EPOCH FROM (
-                    tpep_dropoff_datetime - tpep_pickup_datetime
-                )) / 3600,
-                0
-            ),
-            0.99
-        ),
-        2
-    ) AS p99_mph,
-
-    ROUND(
-        MAX(
-            trip_distance /
-            NULLIF(
-                EXTRACT(EPOCH FROM (
-                    tpep_dropoff_datetime - tpep_pickup_datetime
-                )) / 3600,
-                0
-            )
-        ),
-        2
-    ) AS max_mph
+        100.0 * COUNT(*) FILTER (
+            WHERE trip_distance > 100
+        ) / COUNT(*),
+        3
+    ) AS extreme_distance_pct
 
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
 
-WHERE tpep_dropoff_datetime > tpep_pickup_datetime
-
-GROUP BY VendorID, payment_type
-
-ORDER BY VendorID, payment_type;
+WHERE VendorID = 2;
 """
 
 result = con.execute(query).fetchdf()
