@@ -54,18 +54,17 @@ FROM (SELECT
     tpep_dropoff_datetime, tpep_pickup_datetime, fare_amount, total_amount,
     CASE 
         WHEN trip_distance < 20 THEN 'below_20'
-        WHEN trip_distance >= 20 AND trip_distance < 50 THEN 'between_20_50'
-        WHEN trip_distance >= 50 AND trip_distance < 100 THEN 'between_50_100'
-        WHEN trip_distance >= 100 AND trip_distance < 500 THEN 'between_100_500'
-        WHEN trip_distance >= 500 AND trip_distance < 1000 THEN 'between_500_1000'
-        WHEN trip_distance >= 1000 AND trip_distance < 10000 THEN 'between_1k_10k'
+        WHEN trip_distance < 50 THEN 'between_20_50'
+        WHEN trip_distance < 100 THEN 'between_50_100'
+        WHEN trip_distance < 500 THEN 'between_100_500'
+        WHEN trip_distance < 1000 THEN 'between_500_1000'
+        WHEN trip_distance < 10000 THEN 'between_1k_10k'
         ELSE '10k+'
     END AS Distance_Bucket
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
 WHERE VendorID = 2) t
 
-GROUP BY Distance_Bucket
-LIMIT 20;
+GROUP BY Distance_Bucket;
 """
 
 result = con.execute(query).fetchdf()
