@@ -45,8 +45,13 @@ con = duckdb.connect()
 query = """
 SELECT 
 Distance_Bucket,
-COUNT (*)
+COUNT (*) AS trip_count,
+AVG(ROUND(EXTRACT(EPOCH FROM (tpep_dropoff_datetime - tpep_pickup_datetime)) / 60,2)) AS avg_duration_minutes,
+ROUND(QUANTILE_CONT(EXTRACT(EPOCH FROM (tpep_dropoff_datetime - tpep_pickup_datetime)) / 60,0.50),2) AS median_duration_minutes,
+AVG (fare_amount) AS avg_fare_amount,
+AVG (total_amount) AS avg_total_amount
 FROM (SELECT
+    tpep_dropoff_datetime, tpep_pickup_datetime, fare_amount, total_amount,
     CASE 
         WHEN trip_distance < 20 THEN 'below_20'
         WHEN trip_distance >= 20 AND trip_distance < 50 THEN 'between_20_50'
