@@ -50,16 +50,13 @@ con.close()
 con = duckdb.connect()
 query = """
 SELECT
-    payment_type,
-    COUNT(*) AS trips,
-    AVG(trip_distance) AS avg_distance,
-    AVG(fare_amount) AS avg_fare,
-    AVG(total_amount) AS avg_total
+    MIN(tpep_pickup_datetime) AS first_pickup,
+    MAX(tpep_pickup_datetime) AS last_pickup,
+    COUNT(DISTINCT CAST(tpep_pickup_datetime AS DATE)) AS active_days,
+    COUNT(DISTINCT PULocationID) AS pickup_zones,
+    COUNT(DISTINCT DOLocationID) AS dropoff_zones
 FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
-WHERE VendorID = 7
-  AND tpep_dropoff_datetime = tpep_pickup_datetime
-GROUP BY payment_type
-ORDER BY payment_type;
+WHERE VendorID = 7;
 """
 
 result = con.execute(query).fetchdf()
