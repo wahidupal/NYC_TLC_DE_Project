@@ -1,0 +1,18 @@
+□ 1. Load dataset
+□ 2. Inspect schema
+□ 3. Count rows
+□ 4. Check NULLs
+□ 5. Check duplicates
+□ 6. Check date range
+□ 7. Check invalid timestamps
+□ 8. Check zero/negative values
+□ 9. Calculate descriptive statistics
+□ 10. Inspect categorical distributions
+□ 11. Investigate numeric outliers
+□ 12. Check relationships between suspicious columns
+□ 13. Validate business rules
+□ 14. Check internal financial/metric consistency
+□ 15. Investigate vendor/source-specific anomalies
+□ 16. Document findings
+□ 17. Define cleaning rules
+□ 18. Validate after cleaning

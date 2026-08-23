@@ -26,18 +26,8 @@ import duckdb
 
 con = duckdb.connect()
 query = """
-SELECT
-    COUNT(*) AS total_trips,
-    COUNT(*) FILTER (
-        WHERE congestion_surcharge IS NULL
-    ) AS congestion_nulls,
-    COUNT(*) FILTER (
-        WHERE Airport_fee IS NULL
-    ) AS airport_nulls,
-    COUNT(*) FILTER (
-        WHERE cbd_congestion_fee IS NULL
-    ) AS cbd_nulls
-FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet');
+SELECT COUNT(*) AS total_trips
+FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
 """
 
 result = con.execute(query).fetchdf()
@@ -48,13 +38,13 @@ con.close()
 
 con = duckdb.connect()
 query = """
-SELECT 
-payment_type,
-COUNT (*) AS mismatched_trips
-FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
-WHERE fare_amount + extra + mta_tax + tip_amount + tolls_amount + improvement_surcharge + congestion_surcharge + Airport_fee + cbd_congestion_fee != total_amount
-GROUP BY payment_type
-ORDER BY mismatched_trips DESC;
+SELECT
+COUNT(*) FILTER (WHERE VendorID IS NULL) AS VendorID_nulls,
+COUNT(*) FILTER (WHERE lpep_pickup_datetime IS NULL) AS lpep_pickup_datetime_nulls,
+COUNT(*) FILTER (WHERE lpep_dropoff_datetime IS NULL) AS lpep_dropoff_datetime_nulls,
+COUNT(*) FILTER (WHERE store_and_fwd_flag IS NULL) AS store_and_fwd_flag_nulls,
+COUNT(*) FILTER (WHERE RatecodeID IS NULL) AS RatecodeID_nulls
+FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
 """
 
 result = con.execute(query).fetchdf()
