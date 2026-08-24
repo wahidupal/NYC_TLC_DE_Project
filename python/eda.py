@@ -39,12 +39,15 @@ con.close()
 con = duckdb.connect()
 query = """
 SELECT
-COUNT(*) FILTER (WHERE VendorID IS NULL) AS VendorID_nulls,
-COUNT(*) FILTER (WHERE lpep_pickup_datetime IS NULL) AS lpep_pickup_datetime_nulls,
-COUNT(*) FILTER (WHERE lpep_dropoff_datetime IS NULL) AS lpep_dropoff_datetime_nulls,
-COUNT(*) FILTER (WHERE store_and_fwd_flag IS NULL) AS store_and_fwd_flag_nulls,
-COUNT(*) FILTER (WHERE RatecodeID IS NULL) AS RatecodeID_nulls
+    VendorID,
+    COUNT(*) AS total_trips,
+    COUNT(*) FILTER (WHERE trip_distance IS NULL
+                OR fare_amount IS NULL
+                OR total_amount IS NULL
+                OR lpep_pickup_datetime IS NULL
+                OR lpep_dropoff_datetime IS NULL ) AS incomplete_trips
 FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
+GROUP BY VendorID;
 """
 
 result = con.execute(query).fetchdf()
