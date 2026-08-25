@@ -3,19 +3,8 @@ import duckdb
 # con = duckdb.connect()
 # query = """
 # SELECT
-#     VendorID,
-#     payment_type,
-#     trip_distance,
-#     fare_amount,
-#     total_amount,
-#     tpep_pickup_datetime,
-#     tpep_dropoff_datetime,
-#     PULocationID,
-#     DOLocationID
+#     DISTINCT VendorID,
 # FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
-# WHERE VendorID = 7
-#   AND tpep_dropoff_datetime = tpep_pickup_datetime
-# LIMIT 20;
 # """
 
 # result = con.execute(query).fetchdf()
@@ -104,32 +93,28 @@ con.close()
 con = duckdb.connect()
 query = """
 SELECT
+    VendorID,
+    distance_bucket,
+    COUNT(*) AS trips
+FROM (
+    SELECT
+    VendorID,
+    CASE
+        WHEN trip_distance < 2 THEN 'below_2'
+        WHEN trip_distance < 5 THEN 'between_2_5'
+        WHEN trip_distance < 10 THEN 'between_5_10'
+        WHEN trip_distance < 20 THEN 'between_10_20'
+        ELSE '20+'
+    END AS distance_bucket,
     trip_distance,
     fare_amount,
-    extra,
-    mta_tax,
-    tip_amount,
-    tolls_amount,
-    improvement_surcharge,
-    congestion_surcharge,
-    cbd_congestion_fee,
-    total_amount,
-
-    total_amount - (
-        fare_amount
-        + extra
-        + mta_tax
-        + tip_amount
-        + tolls_amount
-        + improvement_surcharge
-        + COALESCE(congestion_surcharge, 0)
-        + COALESCE(cbd_congestion_fee, 0)
-    ) AS difference
-
-FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
-WHERE VendorID = 6
-ORDER BY difference DESC
-LIMIT 20;
+    total_amount
+    FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
+) t
+GROUP BY
+    VendorID,
+    distance_bucket
+ORDER BY VendorID;
 """
 
 result = con.execute(query).fetchdf()
