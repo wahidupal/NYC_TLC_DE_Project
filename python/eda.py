@@ -2,15 +2,9 @@ import duckdb
 
 con = duckdb.connect()
 query = """
-SELECT
-COUNT(*) FILTER (
-    WHERE dropOff_datetime = pickup_datetime
-) AS zero_duration_trips,
-
-COUNT(*) FILTER (
-    WHERE dropOff_datetime < pickup_datetime
-) AS negative_duration_trips
-FROM read_parquet('../data/raw/fhv_tripdata_2026-01.parquet');
+SELECT *
+FROM read_parquet('../data/raw/fhv_tripdata_2026-01.parquet')
+WHERE dropOff_datetime < pickup_datetime;
 """
 
 result = con.execute(query).fetchdf()
