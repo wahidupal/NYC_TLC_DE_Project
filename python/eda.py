@@ -1,10 +1,29 @@
 import duckdb
 
+con = duckdb.connect()
+query = """
+SELECT
+COUNT(*) FILTER (
+    WHERE dropOff_datetime = pickup_datetime
+) AS zero_duration_trips,
+
+COUNT(*) FILTER (
+    WHERE dropOff_datetime < pickup_datetime
+) AS negative_duration_trips
+FROM read_parquet('../data/raw/fhv_tripdata_2026-01.parquet');
+"""
+
+result = con.execute(query).fetchdf()
+
+print(result.to_string(index=False))
+
+con.close()
+
 # con = duckdb.connect()
 # query = """
-# SELECT
-#     DISTINCT VendorID,
-# FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet')
+# SUMMARIZE
+# SELECT *
+# FROM read_parquet('../data/raw/fhvhv_tripdata_2026-01.parquet');
 # """
 
 # result = con.execute(query).fetchdf()
@@ -13,113 +32,28 @@ import duckdb
 
 # con.close()
 
-con = duckdb.connect()
-query = """
-SELECT
-    ROUND(
-        QUANTILE_CONT(
-            total_amount - (
-                fare_amount
-                + extra
-                + mta_tax
-                + tip_amount
-                + tolls_amount
-                + improvement_surcharge
-                + COALESCE(congestion_surcharge, 0)
-                + COALESCE(cbd_congestion_fee, 0)
-            ),
-            0.25
-        ), 2
-    ) AS p25_difference,
+# con = duckdb.connect()
+# query = """
+# SELECT COUNT(*) AS trips_fhv_tripdata
+# FROM read_parquet('../data/raw/fhv_tripdata_2026-01.parquet');
+# """
 
-    ROUND(
-        QUANTILE_CONT(
-            total_amount - (
-                fare_amount
-                + extra
-                + mta_tax
-                + tip_amount
-                + tolls_amount
-                + improvement_surcharge
-                + COALESCE(congestion_surcharge, 0)
-                + COALESCE(cbd_congestion_fee, 0)
-            ),
-            0.50
-        ), 2
-    ) AS median_difference,
+# result = con.execute(query).fetchdf()
 
-    ROUND(
-        QUANTILE_CONT(
-            total_amount - (
-                fare_amount
-                + extra
-                + mta_tax
-                + tip_amount
-                + tolls_amount
-                + improvement_surcharge
-                + COALESCE(congestion_surcharge, 0)
-                + COALESCE(cbd_congestion_fee, 0)
-            ),
-            0.75
-        ), 2
-    ) AS p75_difference,
+# print(result.to_string(index=False))
 
-    ROUND(
-        QUANTILE_CONT(
-            total_amount - (
-                fare_amount
-                + extra
-                + mta_tax
-                + tip_amount
-                + tolls_amount
-                + improvement_surcharge
-                + COALESCE(congestion_surcharge, 0)
-                + COALESCE(cbd_congestion_fee, 0)
-            ),
-            0.99
-        ), 2
-    ) AS p99_difference
+# con.close()
 
-FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
-WHERE VendorID = 6;
-"""
+# con = duckdb.connect()
+# query = """
+# SELECT COUNT(*) AS trips_fhvhv_tripdata
+# FROM read_parquet('../data/raw/fhvhv_tripdata_2026-01.parquet');
+# """
 
-result = con.execute(query).fetchdf()
+# result = con.execute(query).fetchdf()
 
-print(result.to_string(index=False))
+# print(result.to_string(index=False))
 
-con.close()
+# con.close()
 
-con = duckdb.connect()
-query = """
-SELECT
-    VendorID,
-    distance_bucket,
-    COUNT(*) AS trips
-FROM (
-    SELECT
-    VendorID,
-    CASE
-        WHEN trip_distance < 2 THEN 'below_2'
-        WHEN trip_distance < 5 THEN 'between_2_5'
-        WHEN trip_distance < 10 THEN 'between_5_10'
-        WHEN trip_distance < 20 THEN 'between_10_20'
-        ELSE '20+'
-    END AS distance_bucket,
-    trip_distance,
-    fare_amount,
-    total_amount
-    FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
-) t
-GROUP BY
-    VendorID,
-    distance_bucket
-ORDER BY VendorID;
-"""
-
-result = con.execute(query).fetchdf()
-
-print(result.to_string(index=False))
-
-con.close()
 
