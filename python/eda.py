@@ -26,8 +26,73 @@ import duckdb
 
 con = duckdb.connect()
 query = """
-SELECT COUNT(*) AS total_trips
+SELECT
+    ROUND(
+        QUANTILE_CONT(
+            total_amount - (
+                fare_amount
+                + extra
+                + mta_tax
+                + tip_amount
+                + tolls_amount
+                + improvement_surcharge
+                + COALESCE(congestion_surcharge, 0)
+                + COALESCE(cbd_congestion_fee, 0)
+            ),
+            0.25
+        ), 2
+    ) AS p25_difference,
+
+    ROUND(
+        QUANTILE_CONT(
+            total_amount - (
+                fare_amount
+                + extra
+                + mta_tax
+                + tip_amount
+                + tolls_amount
+                + improvement_surcharge
+                + COALESCE(congestion_surcharge, 0)
+                + COALESCE(cbd_congestion_fee, 0)
+            ),
+            0.50
+        ), 2
+    ) AS median_difference,
+
+    ROUND(
+        QUANTILE_CONT(
+            total_amount - (
+                fare_amount
+                + extra
+                + mta_tax
+                + tip_amount
+                + tolls_amount
+                + improvement_surcharge
+                + COALESCE(congestion_surcharge, 0)
+                + COALESCE(cbd_congestion_fee, 0)
+            ),
+            0.75
+        ), 2
+    ) AS p75_difference,
+
+    ROUND(
+        QUANTILE_CONT(
+            total_amount - (
+                fare_amount
+                + extra
+                + mta_tax
+                + tip_amount
+                + tolls_amount
+                + improvement_surcharge
+                + COALESCE(congestion_surcharge, 0)
+                + COALESCE(cbd_congestion_fee, 0)
+            ),
+            0.99
+        ), 2
+    ) AS p99_difference
+
 FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
+WHERE VendorID = 6;
 """
 
 result = con.execute(query).fetchdf()
@@ -39,15 +104,32 @@ con.close()
 con = duckdb.connect()
 query = """
 SELECT
-    VendorID,
-    COUNT(*) AS total_trips,
-    COUNT(*) FILTER (WHERE trip_distance IS NULL
-                OR fare_amount IS NULL
-                OR total_amount IS NULL
-                OR lpep_pickup_datetime IS NULL
-                OR lpep_dropoff_datetime IS NULL ) AS incomplete_trips
+    trip_distance,
+    fare_amount,
+    extra,
+    mta_tax,
+    tip_amount,
+    tolls_amount,
+    improvement_surcharge,
+    congestion_surcharge,
+    cbd_congestion_fee,
+    total_amount,
+
+    total_amount - (
+        fare_amount
+        + extra
+        + mta_tax
+        + tip_amount
+        + tolls_amount
+        + improvement_surcharge
+        + COALESCE(congestion_surcharge, 0)
+        + COALESCE(cbd_congestion_fee, 0)
+    ) AS difference
+
 FROM read_parquet('../data/raw/green_tripdata_2026-01.parquet')
-GROUP BY VendorID;
+WHERE VendorID = 6
+ORDER BY difference DESC
+LIMIT 20;
 """
 
 result = con.execute(query).fetchdf()
