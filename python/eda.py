@@ -2,9 +2,9 @@ import duckdb
 
 con = duckdb.connect()
 query = """
-DESCRIBE SELECT *
+SUMMARIZE SELECT *
 
-FROM read_parquet('../data/raw/fhvhv_tripdata_2026-01.parquet')
+FROM read_parquet('../data/raw/fhvhv_tripdata_2026-01.parquet');
 """
 
 result = con.execute(query).fetchdf()
