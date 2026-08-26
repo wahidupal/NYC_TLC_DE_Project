@@ -844,28 +844,3 @@ print(result.to_string(index=False))
 
 con.close()
 
-con = duckdb.connect()
-query = """
-DESCRIBE
-SELECT *
-FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet');
-"""
-
-result = con.execute(query).fetchdf()
-
-print(result.to_string(index=False))
-
-con.close()
-
-con = duckdb.connect()
-query = """
-DESCRIBE
-SELECT *
-FROM read_parquet('../data/raw/yellow_tripdata_2026-01.parquet');
-"""
-
-result = con.execute(query).fetchdf()
-
-print(result.to_string(index=False))
-
-con.close()
