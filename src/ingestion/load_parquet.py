@@ -6,14 +6,14 @@ import psycopg2
 # Configuration
 # ---------------------------------------------------------
 
-PARQUET_FILE = "../data/raw/yellow_tripdata_2026-01.parquet"
+PARQUET_FILE = "../../data/raw/yellow_tripdata_2026-01.parquet"
 
 PG_CONFIG = {
     "host": "localhost",
     "port": 5432,
     "database": "nyc_tlc",
     "user": "postgres",
-    "password": "YOUR_PASSWORD"
+    "password": "W@hman140890"
 }
 
 
