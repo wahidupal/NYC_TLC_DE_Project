@@ -13,7 +13,7 @@ PG_CONFIG = {
     "port": 5432,
     "database": "nyc_tlc",
     "user": "postgres",
-    "password": "W@hman140890"
+    "password": ""
 }
 
 
