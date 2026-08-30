@@ -100,9 +100,16 @@ SELECT
     END AS is_negative_total,
 
     CASE
-        WHEN tpep_pickup_datetime >= tpep_dropoff_datetime
+        WHEN tpep_pickup_datetime > tpep_dropoff_datetime
         THEN TRUE
         ELSE FALSE
-    END AS is_invalid_timestamp
+    END AS is_invalid_timestamp,
 
-FROM staging.yellow_trips;
+	CASE 
+		WHEN tpep_pickup_datetime = tpep_dropoff_datetime
+		THEN TRUE
+		ELSE FALSE
+	END AS is_zero_duration
+
+FROM staging.yellow_trips
+WHERE tpep_pickup_datetime <= tpep_dropoff_datetime;
