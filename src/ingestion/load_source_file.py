@@ -2,7 +2,6 @@ import sys
 
 import duckdb
 import psycopg2
-from psycopg2.extras import execute_values
 
 from config import PG_CONFIG
 
@@ -28,6 +27,11 @@ DATASETS = {
         "file": "../../data/raw/fhvhv_tripdata_2026-01.parquet",
         "table": "staging.fhvhv_trips",
     },
+    "taxi_zone_lookup": {
+        "file": "../../data/raw/taxi_zone_lookup.csv",
+        "table": "staging.taxi_zone_lookup",
+        "format": "csv",
+    },
 }
 
 
@@ -37,7 +41,7 @@ DATASETS = {
 
 if len(sys.argv) != 2:
     print("Usage: python load_parquet.py <dataset>")
-    print("Available datasets: yellow, green, fhv, fhvhv")
+    print("Available datasets: yellow, green, fhv, fhvhv, taxi_zone_lookup")
     sys.exit(1)
 
 
@@ -45,26 +49,43 @@ dataset_name = sys.argv[1].lower()
 
 if dataset_name not in DATASETS:
     print(f"Unknown dataset: {dataset_name}")
-    print("Available datasets: yellow, green, fhv, fhvhv")
+    print("Available datasets: yellow, green, fhv, fhvhv, taxi_zone_lookup")
     sys.exit(1)
 
 
 dataset = DATASETS[dataset_name]
 
-PARQUET_FILE = dataset["file"]
+DATA_FILE = dataset["file"]
 TARGET_TABLE = dataset["table"]
 
 
 # ---------------------------------------------------------
-# Read Parquet with DuckDB
+# Read source file with DuckDB
 # ---------------------------------------------------------
 
 duck = duckdb.connect()
 
-query = f"""
-SELECT *
-FROM read_parquet('{PARQUET_FILE}')
-"""
+FILE_FORMAT = dataset.get("format", "parquet")
+
+if FILE_FORMAT == "parquet":
+
+    query = f"""
+    SELECT *
+    FROM read_parquet('{DATA_FILE}')
+    """
+
+elif FILE_FORMAT == "csv":
+
+    query = f"""
+    SELECT *
+    FROM read_csv('{DATA_FILE}', header=true)
+    """
+
+else:
+
+    print(f"Unsupported file format: {FILE_FORMAT}")
+    sys.exit(1)
+
 
 result = duck.execute(query)
 
