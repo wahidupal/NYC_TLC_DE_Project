@@ -24,11 +24,11 @@ SELECT
 
     EXTRACT(MONTH FROM date_value)::INTEGER AS month,
 
-    TO_CHAR(date_value, 'Month') AS month_name,
+    TRIM(TO_CHAR(date_value, 'Month')) AS month_name,
 
     EXTRACT(DAY FROM date_value)::INTEGER AS day,
 
-    TO_CHAR(date_value, 'Day') AS day_name,
+    TRIM (TO_CHAR(date_value, 'Day')) AS day_name,
 
     EXTRACT(ISODOW FROM date_value)::INTEGER AS day_of_week,
 
