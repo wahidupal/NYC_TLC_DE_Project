@@ -1,4 +1,4 @@
-# Project and Dataset Overview
+# Project & Dataset Overview
 
 
 # 🚕 NYC TLC Data Pipeline
@@ -99,3 +99,38 @@ Analytics Layer
         ├── Zone Performance
         └── Route Performance
 ```
+
+## 📦 Data Availability & Reproducibility
+
+The raw NYC TLC Parquet files are **not included in this repository** due to their file size. The combined source data used for this project is too large to be practical for storage in a Git repository.
+
+Instead, the pipeline is designed to ingest the source data directly from the official NYC Taxi & Limousine Commission (TLC) datasets.
+
+### Source Data
+
+The datasets used in this project are publicly available from the official NYC TLC website:
+
+**[NYC TLC Trip Record Data](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)**
+
+For this project, the following datasets were used:
+
+* Yellow Taxi Trip Records — January 2026
+* Green Taxi Trip Records — January 2026
+* For-Hire Vehicle (FHV) Trip Records — January 2026
+* High-Volume For-Hire Vehicle (HVFHV) Trip Records — January 2026
+* Taxi Zone Lookup Table
+
+The TLC publishes trip records in **Parquet format** and provides monthly download links for each service.
+
+### Reproducing the Pipeline
+
+To reproduce the project:
+
+1. Download the required January 2026 datasets from the official TLC website.
+2. Place the downloaded files in the directory expected by the ingestion scripts.
+3. Run the ingestion pipeline to load the source data into PostgreSQL.
+4. Execute the validation, cleaning, dimensional modeling, and analytics SQL scripts.
+
+The repository contains the **pipeline code, SQL transformations, validation logic, data model, and documentation**, while the source data remains available from the official publisher.
+
+> **Note:** The NYC TLC states that the trip data is collected from technology providers and FHV bases rather than created directly by TLC, and that TLC does not guarantee the accuracy of the trip data. This is relevant to the data-quality findings discussed later in this project.
