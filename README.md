@@ -344,7 +344,7 @@ Create the project database:
 CREATE DATABASE NYC_TLC;
 ```
 
-The pipeline organizes the warehouse into separate PostgreSQL schemas for the different processing layers
+The pipeline organizes the warehouse into separate PostgreSQL schemas for the different processing layers.
 
 ### 5. Configure Database Credentials
 
@@ -484,3 +484,4 @@ The README provides the high-level view of the project. The following documents 
 
 * **[Repository Structure](docs/repository_structure.md)**
   Explanation of the project directory structure and the responsibilities of the main folders and files.
+
