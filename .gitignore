@@ -1,6 +1,7 @@
 # Environment variables / secrets
 .env
 
+data/raw/
 # Python
 __pycache__/
 *.py[cod]
@@ -18,3 +19,6 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+
+__pycache__/
+*.pyc

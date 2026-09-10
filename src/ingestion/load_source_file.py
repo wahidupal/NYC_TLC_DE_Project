@@ -40,7 +40,7 @@ DATASETS = {
 # ---------------------------------------------------------
 
 if len(sys.argv) != 2:
-    print("Usage: python load_parquet.py <dataset>")
+    print("Usage: python load_source_file.py <dataset>")
     print("Available datasets: yellow, green, fhv, fhvhv, taxi_zone_lookup")
     sys.exit(1)
 
