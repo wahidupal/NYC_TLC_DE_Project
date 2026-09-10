@@ -318,3 +318,167 @@ The README provides the high-level view of the project. Detailed technical decis
 
 * **Repository Structure**
   Explanation of the project directory and file organization.
+
+## 🚀 Setup & Reproducibility
+
+The project is designed to be reproducible locally using Python, DuckDB, and PostgreSQL.
+
+### Prerequisites
+
+* Python 3
+* PostgreSQL
+* DuckDB
+* Git
+
+### 1. Clone the Repository
+
+Clone the repository and navigate into the project directory.
+
+### 2. Install Python Dependencies
+
+Install the required Python packages:
+
+```bash
+pip install duckdb psycopg2-binary python-dotenv pandas
+```
+
+### 3. Download the Source Data
+
+Download the January 2026 TLC datasets and place them in:
+
+```text
+data/raw/
+```
+
+The expected files are:
+
+```text
+yellow_tripdata_2026-01.parquet
+green_tripdata_2026-01.parquet
+fhv_tripdata_2026-01.parquet
+fhvhv_tripdata_2026-01.parquet
+taxi_zone_lookup.csv
+```
+
+The large trip-data Parquet files are intentionally excluded from version control.
+
+### 4. Create the PostgreSQL Database
+
+Create the project database:
+
+```sql
+CREATE DATABASE NYC_TLC;
+```
+
+The pipeline creates and uses separate schemas for the different warehouse layers.
+
+### 5. Configure Database Credentials
+
+Create a `.env` file containing the PostgreSQL connection details:
+
+```text
+PG_HOST=localhost
+PG_PORT=5432
+PG_DATABASE=NYC_TLC
+PG_USER=your_username
+PG_PASSWORD=your_password
+```
+
+Credentials are loaded through environment variables rather than being hardcoded in the ingestion scripts.
+
+### 6. Run Source Ingestion
+
+Navigate to:
+
+```text
+src/ingestion/
+```
+
+Then run the ingestion script for each dataset:
+
+```bash
+python load_source_file.py yellow
+python load_source_file.py green
+python load_source_file.py fhv
+python load_source_file.py fhvhv
+python load_source_file.py taxi_zone_lookup
+```
+
+The ingestion process uses DuckDB to read the source files and loads the data into PostgreSQL in batches.
+
+### 7. Execute the Pipeline
+
+After ingestion, execute the SQL scripts in the following order:
+
+```text
+01_Validation
+        ↓
+02_Cleaned_layer
+        ↓
+03_Gold
+        ↓
+04_Analytic
+```
+
+Validation should be reviewed before proceeding to downstream analytical models.
+
+For detailed setup instructions and implementation notes, see the Setup & Reproducibility documentation.
+
+---
+
+## 🎯 Project Principles
+
+This project was built around a few core engineering principles.
+
+### Preserve the Source
+
+The warehouse should retain meaningful information from the source rather than silently changing it to make the data appear cleaner.
+
+### Validate Before Transforming
+
+Data-quality checks are performed before analytical consumption so that transformation decisions are based on observed source behaviour.
+
+### Separate Invalid From Unusual
+
+Not every outlier is an error.
+
+Objectively invalid records can be removed when the integrity rule is clear. Suspicious observations are retained and documented when their validity cannot be conclusively determined.
+
+### Keep Layers Purposeful
+
+Each layer has a distinct responsibility:
+
+**Staging** preserves source data.
+**Cleaned** standardizes and prepares the data.
+**Gold** provides reusable dimensional models.
+**Analytics** answers business-facing questions.
+
+### Design for Reuse
+
+The Gold layer is not designed around one dashboard or one analysis. It provides reusable facts and dimensions from which different analytical models can be built.
+
+---
+
+## 💡 What This Project Demonstrates
+
+This project demonstrates an end-to-end Data Engineering workflow covering:
+
+* Source-data exploration and profiling
+* Large-file ingestion with Python and DuckDB
+* PostgreSQL data warehousing
+* Layered data architecture
+* Data-quality validation and anomaly investigation
+* Schema and data standardization
+* Dimensional modelling and star schemas
+* Service-specific fact modelling
+* Shared dimensions and role-playing dimensions
+* Analytical model design and grain management
+* Source-to-target reconciliation
+* Reproducible data pipelines
+* Technical documentation and architectural decision-making
+
+The goal was not simply to load a public dataset into a database.
+
+The goal was to build a warehouse that **understands the source data, makes its limitations visible, and provides reliable analytical models without hiding the problems discovered along the way.**
+
+> **Preserve what the source tells us, remove what is objectively invalid, document what is suspicious, and apply business-specific filtering at the analytical layer.**
