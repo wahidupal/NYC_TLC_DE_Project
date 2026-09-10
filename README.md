@@ -30,3 +30,137 @@ A major focus of the project is **data quality**. Instead of assuming that unusu
 * **Reusable Analytics models** for daily, hourly, zone, and route-level performance analysis.
 * **Reproducible ingestion and transformation workflow** using version-controlled Python and SQL scripts.
 * **Documented technical decisions** explaining why records were removed, retained, transformed, or flagged.
+
+## 🏗️ Architecture
+
+The pipeline follows a layered data warehouse architecture designed to separate source ingestion, data quality processing, analytical modelling, and business-facing datasets.
+
+```text
+NYC TLC Source Data
+        │
+        ▼
+┌───────────────────────┐
+│ Python + DuckDB       │
+│ Source Ingestion      │
+└───────────┬───────────┘
+            │
+            ▼
+┌───────────────────────┐
+│ PostgreSQL             │
+│ Staging Layer          │
+│ Source-level data      │
+└───────────┬───────────┘
+            │
+            ▼
+┌───────────────────────┐
+│ Cleaned Layer          │
+│ Standardization        │
+│ Derived fields         │
+│ Data-quality handling  │
+└───────────┬───────────┘
+            │
+            ▼
+┌───────────────────────┐
+│ Gold Layer             │
+│ Dimensional Model      │
+│                         │
+│ 4 Service Facts        │
+│ + Shared Dimensions    │
+└───────────┬───────────┘
+            │
+            ▼
+┌───────────────────────┐
+│ Analytics Layer        │
+│                         │
+│ Daily                  │
+│ Hourly                 │
+│ Zone                   │
+│ Route                  │
+└───────────────────────┘
+```
+
+The architecture follows a **Medallion-style data lifecycle**, while the Gold layer uses **dimensional modelling** for analytical workloads.
+
+These are complementary concepts rather than competing architectures:
+
+* **Staging** preserves the source data after ingestion.
+* **Cleaned** standardizes fields, derives reusable attributes, and handles objective data-quality issues.
+* **Gold** organizes the data into service-specific fact tables and shared dimensions.
+* **Analytics** provides business-oriented datasets built from the Gold layer.
+
+Detailed architecture and data-flow documentation is available in the project documentation.
+
+---
+
+## 📊 Dataset Overview
+
+The project uses four NYC TLC trip-record datasets covering **January 2026**, together with the TLC Taxi Zone Lookup table.
+
+| Dataset          | Service            | Trip Distance | Location Coverage | Key Characteristics                                                     |
+| ---------------- | ------------------ | ------------: | ----------------- | ----------------------------------------------------------------------- |
+| Yellow Taxi      | Yellow taxi        |     Available | High              | Detailed trip, fare, payment, and location information                  |
+| Green Taxi       | Green taxi         |     Available | High              | Similar trip structure to Yellow Taxi with service-specific differences |
+| FHV              | For-Hire Vehicle   | Not available | Partial           | Large number of missing locations and source-provided timestamps        |
+| FHVHV            | High-Volume FHV    |     Available | High              | Detailed request, on-scene, pickup, and dropoff lifecycle               |
+| Taxi Zone Lookup | Location reference |           N/A | N/A               | Maps TLC location IDs to boroughs and zone names                        |
+
+The datasets are similar enough to support cross-service analysis, but they are **not interchangeable**.
+
+For example:
+
+* FHV does not provide trip distance.
+* FHV contains substantial missing pickup and dropoff information.
+* FHVHV contains additional lifecycle timestamps that allow request, on-scene, pickup, and dropoff sequences to be validated.
+* Yellow and Green Taxi contain fare and payment information that is not available in the same form across all services.
+* Different datasets contain different types of source anomalies and quality limitations.
+
+The pipeline therefore does **not** force every source into an identical structure simply for the sake of consistency. Instead, common analytical concepts are standardized while service-specific information and limitations are preserved.
+
+### Why this matters
+
+A data warehouse should not hide important characteristics of its source data.
+
+For example, replacing missing FHV distance values with zero would make the dataset appear complete while introducing false information. The Gold model instead preserves the limitation and allows downstream analytical models to handle it explicitly.
+
+This principle is used throughout the project:
+
+> **Preserve what the source tells us, remove what is objectively invalid, document what is suspicious, and apply business-specific filtering at the analytical layer.**
+
+---
+
+## 🔍 Data Quality and Validation
+
+Data quality was treated as a core engineering component rather than a final cleanup step.
+
+Validation checks were performed at multiple stages of the pipeline, including:
+
+* Row-count reconciliation between layers
+* Null and missing-value analysis
+* Timestamp validity and chronological ordering
+* Trip duration validation
+* Negative duration detection
+* Negative financial values
+* Financial reconciliation
+* Pickup and dropoff location coverage
+* Taxi-zone mapping validation
+* Distance distribution analysis
+* Outlier and anomaly investigation
+* FHVHV lifecycle sequence validation
+* Source-date boundary checks
+
+### Invalid vs. unusual data
+
+One of the main design decisions in this project was to distinguish between **invalid** and **unusual** records.
+
+A record that violates an objective integrity rule can be removed. For example, a trip where the pickup timestamp occurs after the dropoff timestamp is objectively invalid.
+
+An unusually large distance or duration, however, is not automatically invalid. Removing every statistical outlier would risk deleting genuine source observations and hiding data-quality problems.
+
+Therefore:
+
+* **Objectively invalid records** are removed where the rule is unambiguous.
+* **Suspicious records** are retained when their validity cannot be conclusively disproved.
+* **Anomalies are investigated and documented** rather than silently discarded.
+* **Analytical models apply business-specific filtering** when a particular use case requires a representative subset.
+
+This approach allows the warehouse to remain faithful to the source while making its limitations visible to downstream users.
