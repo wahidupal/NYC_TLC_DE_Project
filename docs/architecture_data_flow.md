@@ -10,7 +10,7 @@ The architecture follows a layered approach:
 
 **Source Data → Bronze → Silver → Gold → Analytics → Consumption**
 
-![Data Architecture](docs/images/data_architecture.png)
+![Data Architecture](images/data_architecture.png)
 
 The purpose of each layer is described below.
 
