@@ -4,7 +4,7 @@ The Gold layer uses a **dimensional data model** designed to provide a consisten
 
 The source datasets differ in structure and available attributes, so the model standardizes common analytical concepts while preserving service-specific characteristics.
 
-![Data Model](docs/images/medallion_architecture_pipeline.png)
+![Data Model](images/medallion_architecture_pipeline.png)
 
 ### Star Schema Design
 
