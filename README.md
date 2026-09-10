@@ -164,3 +164,157 @@ Therefore:
 * **Analytical models apply business-specific filtering** when a particular use case requires a representative subset.
 
 This approach allows the warehouse to remain faithful to the source while making its limitations visible to downstream users.
+
+## 📈 Analytics Layer
+
+The Analytics layer transforms the reusable Gold models into datasets designed for common operational and analytical questions.
+
+The models are intentionally kept at different grains rather than forcing all analysis into one wide table.
+
+| Model                     | Grain                                | Purpose                                                    |
+| ------------------------- | ------------------------------------ | ---------------------------------------------------------- |
+| `daily_trip_performance`  | Date × Service                       | Daily trip volume, distance, and duration performance      |
+| `hourly_trip_performance` | Date × Hour × Service                | Identify hourly demand patterns and peak periods           |
+| `zone_performance`        | Date × Service × Pickup Zone         | Compare activity and trip characteristics across locations |
+| `route_performance`       | Service × Pickup Zone × Dropoff Zone | Analyze movement between origin and destination zones      |
+
+The Analytics layer also applies **business-specific reporting boundaries**. For example, the source files are preserved as received, while analytical models can restrict the reporting period to January 2026.
+
+This separation prevents reporting requirements from contaminating the underlying warehouse and keeps the Gold layer reusable for future analysis.
+
+Detailed definitions, grain decisions, reconciliation checks, and model outputs are documented in the Analytics Layer documentation.
+
+---
+
+## 🛠️ Technology Stack
+
+### Data Processing
+
+* **Python** for ingestion utilities, exploratory data analysis, and data-processing logic
+* **DuckDB** for efficient querying and inspection of Parquet and CSV source files
+* **Pandas** for exploratory analysis and data investigation
+
+### Data Warehouse
+
+* **PostgreSQL** as the central relational data warehouse
+* SQL for validation, transformation, dimensional modelling, and analytical models
+
+### Data Modelling
+
+* Medallion-style layered architecture
+* Dimensional modelling
+* Star-schema design
+* Service-specific fact tables
+* Shared date and location dimensions
+
+### Development & Documentation
+
+* Git and GitHub for version control
+* Draw.io for architecture and data-model diagrams
+* Markdown for technical documentation
+
+---
+
+## 📁 Repository Structure
+
+```text
+NYC_TLC_DE_Project/
+│
+├── data/
+│   └── raw/
+│       └── taxi_zone_lookup.csv
+│
+├── docs/
+│   ├── images/
+│   ├── Data Integration.drawio
+│   ├── Data model diagram.drawio
+│   ├── Gold Data Model.drawio
+│   └── Medalion Architecture.drawio
+│
+├── python/
+│   ├── EDA check list.txt
+│   ├── eda.py
+│   ├── fhv_eda.py
+│   ├── fhvhv_eda.py
+│   ├── filtering.py
+│   ├── yellow_eda.py
+│   └── yellow_taxi_eda.py
+│
+├── src/
+│   └── ingestion/
+│       ├── config.py
+│       └── load_source_file.py
+│
+├── sql/
+│   ├── 01_Validation/
+│   ├── 02_Cleaned_layer/
+│   ├── 03_Gold/
+│   └── 04_Analytic/
+│
+├── .gitignore
+├── README.md
+├── Analytics Layer.md
+├── Architecture & Data Flow.md
+├── Data Integration.md
+├── Data Model.md
+├── Data Quality & Validation.md
+├── Repository Structure.md
+├── Setup & Reproducibility.md
+└── Technical Decisions.md
+```
+
+### Directory Responsibilities
+
+**`data/raw/`**
+Contains source files required by the pipeline. Large TLC Parquet files are intentionally excluded from Git.
+
+**`python/`**
+Contains exploratory analysis and data-investigation scripts developed during the project.
+
+**`src/ingestion/`**
+Contains the reusable source-ingestion code used to load files into PostgreSQL staging tables.
+
+**`sql/01_Validation/`**
+Contains data-quality and source-validation checks.
+
+**`sql/02_Cleaned_layer/`**
+Contains cleaning, standardization, derived fields, and source-specific transformation logic.
+
+**`sql/03_Gold/`**
+Contains dimensional warehouse models, including the service-specific fact tables and shared dimensions.
+
+**`sql/04_Analytic/`**
+Contains business-facing analytical models built from the Gold layer.
+
+**`docs/`**
+Contains architecture and data-model diagrams and supporting project documentation.
+
+---
+
+## 📚 Detailed Documentation
+
+The README provides the high-level view of the project. Detailed technical decisions, validation findings, modelling choices, and reproducibility instructions are documented separately.
+
+* **Architecture & Data Flow**
+  Pipeline architecture, layer responsibilities, and data movement.
+
+* **Data Integration**
+  How the four heterogeneous transportation datasets are integrated while preserving service-specific characteristics.
+
+* **Data Model**
+  Gold-layer dimensional model, fact tables, dimensions, grain, and relationships.
+
+* **Data Quality & Validation**
+  Validation framework, anomalies, reconciliation findings, and decisions about invalid versus unusual records.
+
+* **Analytics Layer**
+  Analytical model definitions, grain, reconciliation, and business use cases.
+
+* **Technical Decisions**
+  Major architecture, modelling, ingestion, and data-quality decisions and their rationale.
+
+* **Setup & Reproducibility**
+  Environment setup, source-data requirements, database creation, ingestion commands, and pipeline execution.
+
+* **Repository Structure**
+  Explanation of the project directory and file organization.
