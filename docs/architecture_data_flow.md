@@ -91,7 +91,7 @@ Each analytics dataset is designed for a specific analytical purpose and can be 
 
 The following diagram shows how data moves through the pipeline from ingestion to analytical consumption.
 
-![Data Flow](docs/images/data_flow.png)
+![Data Flow](images/data_flow.png)
 
 ## 1. Source Ingestion
 
