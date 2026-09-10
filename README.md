@@ -34,7 +34,7 @@ A major focus of the project is **data quality**. Instead of assuming that unusu
 ## 🏗️ Architecture
 
 - **[Architecture & Data Flow](docs/architecture_data_flow.md)**
-  *Pipeline architecture, layer responsibilities, and data movement*.
+  **Pipeline architecture, layer responsibilities, and data movement:**
 The pipeline follows a layered data warehouse architecture designed to separate source ingestion, data quality processing, analytical modelling, and business-facing datasets.
 
 ```text
