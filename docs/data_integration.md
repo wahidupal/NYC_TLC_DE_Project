@@ -6,7 +6,7 @@ The four TLC trip datasets describe different transportation services and are no
 
 The four TLC trip datasets describe different transportation services and are not structurally identical. The integration process standardizes their common concepts while preserving service-specific characteristics and source limitations.
 
-![Data Integration Pipeline](docs/images/data_integration_pipeline.png)
+![Data Integration Pipeline](images/data_integration_pipeline.png)
 
 ### Schema Standardization
 
