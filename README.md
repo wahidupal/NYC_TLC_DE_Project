@@ -226,10 +226,18 @@ NYC_TLC_DE_Project/
 │
 ├── docs/
 │   ├── images/
+│   ├── architecture_data_flow.md
+│   ├── data_integration.md
+│   ├── data_model.md
+│   ├── data_quality_validation.md
+│   ├── analytics_layer.md
+│   ├── technical_decisions.md
+│   ├── setup_reproducibility.md
+│   ├── repository_structure.md
 │   ├── Data Integration.drawio
 │   ├── Data model diagram.drawio
 │   ├── Gold Data Model.drawio
-│   └── Medalion Architecture.drawio
+│   └── Medallion Architecture.drawio
 │
 ├── python/
 │   ├── EDA check list.txt
@@ -253,14 +261,6 @@ NYC_TLC_DE_Project/
 │
 ├── .gitignore
 ├── README.md
-├── Analytics Layer.md
-├── Architecture & Data Flow.md
-├── Data Integration.md
-├── Data Model.md
-├── Data Quality & Validation.md
-├── Repository Structure.md
-├── Setup & Reproducibility.md
-└── Technical Decisions.md
 ```
 
 ### Directory Responsibilities
