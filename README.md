@@ -46,36 +46,36 @@ NYC TLC Source Data
             │
             ▼
 ┌───────────────────────┐
-│ PostgreSQL             │
-│ Staging Layer          │
-│ Source-level data      │
+│ PostgreSQL            │
+│ Staging Layer         │
+│ Source-level data     │
 └───────────┬───────────┘
             │
             ▼
 ┌───────────────────────┐
-│ Cleaned Layer          │
-│ Standardization        │
-│ Derived fields         │
-│ Data-quality handling  │
+│ Cleaned Layer         │
+│ Standardization       │
+│ Derived fields        │
+│ Data-quality handling │
 └───────────┬───────────┘
             │
             ▼
 ┌───────────────────────┐
-│ Gold Layer             │
-│ Dimensional Model      │
-│                         │
-│ 4 Service Facts        │
-│ + Shared Dimensions    │
+│ Gold Layer            │
+│ Dimensional Model     │
+│                       │
+│ 4 Service Facts       │
+│ + Shared Dimensions   │
 └───────────┬───────────┘
             │
             ▼
 ┌───────────────────────┐
-│ Analytics Layer        │
-│                         │
-│ Daily                  │
-│ Hourly                 │
-│ Zone                   │
-│ Route                  │
+│ Analytics Layer       │
+│                       │
+│ Daily                 │
+│ Hourly                │
+│ Zone                  │
+│ Route                 │
 └───────────────────────┘
 ```
 
