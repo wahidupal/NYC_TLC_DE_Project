@@ -115,7 +115,7 @@ The Gold model acts as the central foundation for the Analytics layer.
 
 Instead of repeatedly transforming raw trip data for every report, the analytics models build on the standardized Gold datasets.
 
-![Gold to Analytics Lineage](docs/images/gold_to_analytics_lineage.png)
+![Gold to Analytics Lineage](images/gold_to_analytics_lineage.png)
 
 The current analytics models include:
 
