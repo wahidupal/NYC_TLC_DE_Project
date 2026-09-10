@@ -33,8 +33,6 @@ A major focus of the project is **data quality**. Instead of assuming that unusu
 
 ## 🏗️ Architecture
 
-- **[Architecture & Data Flow](docs/architecture_data_flow.md)**
-  **Pipeline architecture, layer responsibilities, and data movement:**
 The pipeline follows a layered data warehouse architecture designed to separate source ingestion, data quality processing, analytical modelling, and business-facing datasets.
 
 ```text
@@ -293,33 +291,7 @@ Contains architecture and data-model diagrams and supporting project documentati
 
 ---
 
-## 📚 Detailed Documentation
 
-The README provides the high-level view of the project. Detailed technical decisions, validation findings, modelling choices, and reproducibility instructions are documented separately.
-
-* **Architecture & Data Flow**
-  Pipeline architecture, layer responsibilities, and data movement.
-
-* **Data Integration**
-  How the four heterogeneous transportation datasets are integrated while preserving service-specific characteristics.
-
-* **Data Model**
-  Gold-layer dimensional model, fact tables, dimensions, grain, and relationships.
-
-* **Data Quality & Validation**
-  Validation framework, anomalies, reconciliation findings, and decisions about invalid versus unusual records.
-
-* **Analytics Layer**
-  Analytical model definitions, grain, reconciliation, and business use cases.
-
-* **Technical Decisions**
-  Major architecture, modelling, ingestion, and data-quality decisions and their rationale.
-
-* **Setup & Reproducibility**
-  Environment setup, source-data requirements, database creation, ingestion commands, and pipeline execution.
-
-* **Repository Structure**
-  Explanation of the project directory and file organization.
 
 ## 🚀 Setup & Reproducibility
 
@@ -484,3 +456,31 @@ The goal was not simply to load a public dataset into a database.
 The goal was to build a warehouse that **understands the source data, makes its limitations visible, and provides reliable analytical models without hiding the problems discovered along the way.**
 
 > **Preserve what the source tells us, remove what is objectively invalid, document what is suspicious, and apply business-specific filtering at the analytical layer.**
+
+## 📚 Detailed Documentation
+
+The README provides the high-level view of the project. The following documents provide deeper technical details on the architecture, data integration, modelling, validation, reproducibility, and engineering decisions.
+
+* **[Architecture & Data Flow](docs/architecture_data_flow.md)**
+  Overview of the pipeline architecture, processing layers, and movement of data from source systems through the warehouse.
+
+* **[Data Integration](docs/data_integration.md)**
+  How the four heterogeneous TLC datasets are integrated while preserving service-specific characteristics and source limitations.
+
+* **[Data Model](docs/data_model.md)**
+  Detailed explanation of the Gold-layer dimensional model, fact tables, shared dimensions, relationships, and table grain.
+
+* **[Data Quality & Validation](docs/data_quality_validation.md)**
+  Validation framework, data-quality findings, anomalies, reconciliation results, and decisions about invalid versus unusual records.
+
+* **[Analytics Layer](docs/analytics_layer.md)**
+  Definitions of the analytical models, their grains, business purposes, and source-to-analytics reconciliation.
+
+* **[Technical Decisions](docs/technical_decisions.md)**
+  Key architecture, ingestion, modelling, and data-quality decisions, together with the reasoning behind them.
+
+* **[Setup & Reproducibility](docs/setup_reproducibility.md)**
+  Local environment setup, source-data requirements, PostgreSQL configuration, ingestion commands, and pipeline execution.
+
+* **[Repository Structure](docs/repository_structure.md)**
+  Explanation of the project directory structure and the responsibilities of the main folders and files.
